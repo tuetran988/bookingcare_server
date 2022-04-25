@@ -68,8 +68,8 @@ let getAllUsers = (userId) => {
       if (userId === "All") {
         users = await db.User.findAll({
           attributes: {
-            exclude: ['password']
-           }
+            exclude: ["password"],
+          },
         });
       }
       if (userId && userId !== "All") {
@@ -95,25 +95,24 @@ let createNewUser = (data) => {
       if (check === true) {
         resolve({
           errCode: 1,
-          errMessage: "Your email is already in used,plz try another email"
-        })
-      }       
-      else{
-          let hashPasswordFromBcrypt = await hashUserPassword(data.password);
-          await db.User.create({
-            email: data.email,
-            password: hashPasswordFromBcrypt,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            address: data.address,
-            phonenumber: data.phonenumber,
-            gender: data.gender === "1" ? true : false,
-            roleId: data.roleId,
-          });
-          resolve({
-            errCode: 0,
-            message: "OK",
-          });
+          errMessage: "Your email is already in used,plz try another email",
+        });
+      } else {
+        let hashPasswordFromBcrypt = await hashUserPassword(data.password);
+        await db.User.create({
+          email: data.email,
+          password: hashPasswordFromBcrypt,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          address: data.address,
+          phonenumber: data.phonenumber,
+          gender: data.gender === "1" ? true : false,
+          roleId: data.roleId,
+        });
+        resolve({
+          errCode: 0,
+          message: "OK",
+        });
       }
     } catch (error) {
       reject(error);
@@ -144,12 +143,12 @@ let deleteUser = (userId) => {
         });
       }
       await db.User.destroy({
-        where:{id:userId},
-      })
+        where: { id: userId },
+      });
       resolve({
         errCode: 3,
         errMessage: "User deleted",
-      })
+      });
     } catch (e) {
       reject(e);
     }
@@ -157,38 +156,63 @@ let deleteUser = (userId) => {
 };
 
 let updateUserData = (data) => {
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       if (!data.id) {
-          resolve({
-            errCode: 2,
-            message: "missing required parameter",
-          });
-        }
-        let user = await db.User.findOne({
-          where: { id: data.id },
-          raw:false
+        resolve({
+          errCode: 2,
+          message: "missing required parameter",
         });
-      if (user) {  
-          user.firstName = data.firstName;
-          user.lastName = data.lastName;
-          user.address = data.address;
-          await user.save();
-          resolve({
-            errCode: 0,
-            message:'update user success!'
-         })
-        } else {
-          resolve({
-            errCode: 1,
-            message:'user not found !'
-          });
-        }
+      }
+      let user = await db.User.findOne({
+        where: { id: data.id },
+        raw: false,
+      });
+      if (user) {
+        user.firstName = data.firstName;
+        user.lastName = data.lastName;
+        user.address = data.address;
+        await user.save();
+        resolve({
+          errCode: 0,
+          message: "update user success!",
+        });
+      } else {
+        resolve({
+          errCode: 1,
+          message: "user not found !",
+        });
+      }
     } catch (e) {
       reject(e);
     }
-  })
-}
+  });
+};
+
+let getAllCodeService = (typeInput) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!typeInput) {
+        resolve({
+          errCode: 1,
+          errMessage: "missing require parameter"
+         });
+
+      } else {
+        let res = {};
+        let allcode = await db.Allcode.findAll({
+          where: { type: typeInput },
+        });
+        res.errCode = 0;
+        res.data = allcode;
+         resolve(res);
+      }
+     
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 module.exports = {
   handleUserLogin: handleUserLogin,
@@ -196,4 +220,5 @@ module.exports = {
   createNewUser: createNewUser,
   deleteUser: deleteUser,
   updateUserData: updateUserData,
+  getAllCodeService: getAllCodeService,
 };
