@@ -104,12 +104,12 @@ let saveDetailInforDoctor = (inputData) => {
           where: {
             doctorId: inputData.doctorId,
           },
-          raw: false
+          raw: false,
         });
         if (doctorInfor) {
           //update
-          doctorInfor.doctorId= inputData.doctorId,
-          doctorInfor.priceId = inputData.selectedPrice;
+          (doctorInfor.doctorId = inputData.doctorId),
+            (doctorInfor.priceId = inputData.selectedPrice);
           doctorInfor.provinceId = inputData.selectedProvince;
           doctorInfor.paymentId = inputData.selectedPayment;
 
@@ -121,25 +121,23 @@ let saveDetailInforDoctor = (inputData) => {
             errCode: 0,
             errMessage: "update success",
           });
-        }
-        else {
+        } else {
           // create
           await db.Doctor_Infor.create({
-            doctorId:inputData.doctorId,
-            priceId : inputData.selectedPrice,
-            provinceId : inputData.selectedProvince,
-            paymentId : inputData.selectedPayment,
+            doctorId: inputData.doctorId,
+            priceId: inputData.selectedPrice,
+            provinceId: inputData.selectedProvince,
+            paymentId: inputData.selectedPayment,
 
-            nameClinic : inputData.nameClinic,
-            addressClinic : inputData.addressClinic,
-            note : inputData.note,
+            nameClinic: inputData.nameClinic,
+            addressClinic: inputData.addressClinic,
+            note: inputData.note,
           });
           resolve({
             errCode: 0,
             errMessage: "update success",
           });
         }
-
       }
     } catch (e) {
       console.log("error from server .......");
@@ -174,10 +172,22 @@ let getDetailDoctorById = (inputId) => {
             {
               model: db.Doctor_Infor,
               include: [
-                {model: db.Allcode,as:"priceTypeData",attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "provinceTypeData", attributes: ["valueEn", "valueVi"]},
-                { model: db.Allcode, as: "paymentTypeData", attributes: ["valueEn", "valueVi"]}
-              ]
+                {
+                  model: db.Allcode,
+                  as: "priceTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "provinceTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "paymentTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+              ],
             },
           ],
           raw: false,
@@ -287,6 +297,119 @@ let getScheduleByDate = (doctorId, date) => {
   });
 };
 
+let getExtraInforDoctorById = (idInput) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!idInput) {
+        resolve({
+          errCode: 1,
+          errMessage: "missing required params",
+        });
+      } else {
+        let data = await db.Doctor_Infor.findOne({
+          where: { doctorId: idInput },
+          attributes: {
+            exclude: ["id", "doctorId"],
+          },
+          include: [
+            {
+              model: db.Allcode,
+              as: "priceTypeData",
+              attributes: ["valueEn", "valueVi"],
+            },
+            {
+              model: db.Allcode,
+              as: "provinceTypeData",
+              attributes: ["valueEn", "valueVi"],
+            },
+            {
+              model: db.Allcode,
+              as: "paymentTypeData",
+              attributes: ["valueEn", "valueVi"],
+            },
+          ],
+          raw: false,
+          nest: true,
+        });
+        if (!data) {
+          data = {};
+        }
+        resolve({
+          errCode: 0,
+          data: data,
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+let getProfileDoctorById = (inputId) => {
+  return new Promise(async(resolve, reject) => {
+    try {
+      if (!inputId) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing Request parameter",
+        });
+      } else {
+        let data = await db.User.findOne({
+          where: { id: inputId },
+          attributes: {
+            exclude: ["password"],
+          },
+          include: [
+            {
+              model: db.Markdown,
+              attributes: ["description", "contentHTML", "contentMarkdown"],
+            },
+            {
+              model: db.Allcode,
+              as: "positionData",
+              attributes: ["valueEn", "valueVi"],
+            },
+            {
+              model: db.Doctor_Infor,
+              include: [
+                {
+                  model: db.Allcode,
+                  as: "priceTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "provinceTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "paymentTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+              ],
+            },
+          ],
+          raw: false,
+          nest: true,
+        });
+        if (data && data.image) {
+          data.image = new Buffer(data.image, "base64").toString("binary");
+        }
+        if (!data) {
+          data = {};
+        }
+        resolve({
+          errCode: 0,
+          data: data,
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   getTopDoctorHome: getTopDoctorHome,
   getAllDoctors: getAllDoctors,
@@ -294,4 +417,6 @@ module.exports = {
   getDetailDoctorById: getDetailDoctorById,
   bulkCreateSchedule: bulkCreateSchedule,
   getScheduleByDate: getScheduleByDate,
+  getExtraInforDoctorById: getExtraInforDoctorById,
+  getProfileDoctorById: getProfileDoctorById,
 };
