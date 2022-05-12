@@ -58,23 +58,33 @@ let getAllDoctors = () => {
   });
 };
 
+//function check parameter 
+let checkRequiredFields = (inputData) => {
+  let arrFields = ['doctorId', 'contentHTML', 'contentMarkdown', 'action',
+    'selectedPrice', 'selectedProvince','selectedPayment','nameClinic','addressClinic','specialtyId']
+  let elementErr = '';
+  let isValid = true;
+  for (let i = 0; i < arrFields.length; i++) {
+    if (!inputData[arrFields[i]]) {
+      isValid = false;
+      elementErr = arrFields[i];
+      break;
+   }
+  }
+  return {
+    isValid: isValid,
+    elementErr: elementErr
+   }
+}
+
 let saveDetailInforDoctor = (inputData) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (
-        !inputData.doctorId ||
-        !inputData.contentHTML ||
-        !inputData.contentMarkdown ||
-        !inputData.action ||
-        !inputData.selectedPrice ||
-        !inputData.selectedProvince ||
-        !inputData.selectedPayment ||
-        !inputData.nameClinic ||
-        !inputData.addressClinic
-      ) {
+      let checkObj = checkRequiredFields(inputData);
+      if (checkObj.isValid === false) {
         resolve({
           errCode: 1,
-          errMessage: "missing require parameter",
+          errMessage: `missing require parameter : ${checkObj.elementErr}`,
         });
       } else {
         //up sert to markdown
@@ -116,6 +126,8 @@ let saveDetailInforDoctor = (inputData) => {
           doctorInfor.nameClinic = inputData.nameClinic;
           doctorInfor.addressClinic = inputData.addressClinic;
           doctorInfor.note = inputData.note;
+          doctorInfor.specialtyId = inputData.specialtyId;
+          doctorInfor.clinicId = inputData.clinicId;
           await doctorInfor.save();
           resolve({
             errCode: 0,
@@ -132,10 +144,12 @@ let saveDetailInforDoctor = (inputData) => {
             nameClinic: inputData.nameClinic,
             addressClinic: inputData.addressClinic,
             note: inputData.note,
+            specialtyId: inputData.specialtyId,
+           clinicId: inputData.clinicId
           });
           resolve({
             errCode: 0,
-            errMessage: "update success",
+            errMessage: "create success",
           });
         }
       }
