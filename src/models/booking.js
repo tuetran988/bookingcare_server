@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      BooKing.belongsTo(models.User, { foreignKey: 'patientId', targetKey: 'id', as: 'patientData' })
+      BooKing.belongsTo(models.Allcode,{foreignKey:'timeType',targetKey:'keyMap',as:'timeTypeDataPatient'})
     }
   }
   BooKing.init(
