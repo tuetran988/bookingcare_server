@@ -1,8 +1,8 @@
 require("dotenv").config();
 import nodemailer from "nodemailer";
 
-let sendSimpleEmail = async(dataSend) => {
-    let transporter = nodemailer.createTransport({
+let sendSimpleEmail = async (dataSend) => {
+  let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false, // true for 465, false for other ports
@@ -19,9 +19,9 @@ let sendSimpleEmail = async(dataSend) => {
     subject: "Thông Tin Đặt Lịch Khám Bệnh ✔", // Subject line
     html: getBodyHTMLEmail(dataSend),
   });
-}
+};
 
-let getBodyHTMLEmail = async(dataSend) => {
+let getBodyHTMLEmail = (dataSend) => {
   let result = "";
   if (dataSend.language === "en") {
     result = `
@@ -54,8 +54,7 @@ let getBodyHTMLEmail = async(dataSend) => {
   return result;
 };
 
-
-let sendAttachment = async(dataSend) => {
+let sendAttachment = async (dataSend) => {
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
@@ -76,13 +75,13 @@ let sendAttachment = async(dataSend) => {
       {
         filename: `remedy-${dataSend.patientId}-${new Date().getTime()}.png`,
         content: dataSend.imgBase64.split("base64,")[1],
-        encoding: 'base64'
-      }
-    ]
+        encoding: "base64",
+      },
+    ],
   });
-}
+};
 let getBodyHTMLEmailRemedy = (dataSend) => {
-      let result = "";
+  let result = "";
   if (dataSend.language === "en") {
     result = `
             <h3>Dear ${dataSend.patientName}!</h3>
@@ -99,11 +98,9 @@ let getBodyHTMLEmailRemedy = (dataSend) => {
         `;
   }
   return result;
-}
-
-
+};
 
 module.exports = {
   sendSimpleEmail: sendSimpleEmail,
-  sendAttachment:sendAttachment
+  sendAttachment: sendAttachment,
 };
