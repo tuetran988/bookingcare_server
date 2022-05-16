@@ -18,7 +18,7 @@ let postBookAppointment = (data) => {
       ) {
         resolve({
           errCode: 1,
-          errMessage: "Missing email",
+          errMessage: "Missing parameter",
         });
       } else {
         let token =  uuidv4();
@@ -31,7 +31,7 @@ let postBookAppointment = (data) => {
           redirectLink: buildUrlEmail(data.doctorId, token),
         });
 
-        //upsert patient information<update/insert>
+        // upsert patient information<update/insert>
         let user = await db.User.findOrCreate({
           where: { email: data.email },
           defaults: {
@@ -43,7 +43,7 @@ let postBookAppointment = (data) => {
           },
         });
         
-        //create booking record / add a new appointment for examination
+        // create booking record / add a new appointment for examination
         if (user && user[0]) {
           await db.BooKing.findOrCreate({
             where: {patientId: user[0].id},
@@ -53,7 +53,7 @@ let postBookAppointment = (data) => {
               patientId: user[0].id,
               date: data.date,
               timeType: data.timeType,
-              token:token,
+              token: token,
             },
           });
         }
