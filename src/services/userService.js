@@ -11,7 +11,7 @@ let handleUserLogin = (email, password) => {
       if (isExist) {
         // user already exists
         let user = await db.User.findOne({
-          attributes: ["email", "roleId", "password", "firstName", "lastName"], // only select many field in user
+          attributes: ["id","email", "roleId", "password", "firstName", "lastName"], // only select many field in user
           where: { email: email },
           raw: true,
         });
